@@ -18,8 +18,8 @@
 
 #include "mesh.h"
 
-Mesh::Mesh(QList<Vertex*> vbo, QList<uint> ibo)
+Mesh::Mesh(QList<Vertex*> v, QList<uint> t)
 {
-    Mesh::vbo = vbo;
-    Mesh::ibo = ibo;
+    Mesh::v = v;
+    Mesh::t = t;
 }

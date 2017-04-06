@@ -16,19 +16,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef MESH_H
-#define MESH_H
+#ifndef TEXTURE_H
+#define TEXTURE_H
 
 #include "includes.h"
 
-#include "vertex.h"
+#include "vector3.h"
+#include "color.h"
+#include "emath.h"
 
-class Mesh
+class Texture
 {
+private:
+    SDL_Surface *m_surface;
+    SDL_Surface *m_ref;
+    void loadBMP(string path);
+    void optimizeTexture(SDL_Surface *reference);
+    Uint8 *rawPixel(uint x,uint y);
 public:
-    QList<Vertex *>v;
-    QList<uint>t;
-    Mesh(QList<Vertex *> v, QList<uint> t);
+    string path;
+    uint width;
+    uint height;
+    Texture(string path, SDL_Surface *reference);
+    void reload();
+    Uint32 *getPixelAt(Vec3 *coord);
 };
 
-#endif // MESH_H
+#endif // TEXTURE_H

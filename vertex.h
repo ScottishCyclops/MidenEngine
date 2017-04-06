@@ -32,12 +32,16 @@ public:
     Vec3* texCoord;
     Color* color;
 
-    Vertex(double x, double y, double z, uint r, uint g, uint b, uint a = 255, double u = 0, double v = 0);
+    Vertex(double x, double y, double z, uint r=255, uint g=255, uint b=255, uint a=255, double u=0, double v=0);
+    Vertex(Vec3 *location);
+    Vertex(Vec3 *location, Color *color);
+    Vertex(Vec3 *location, Color *color, Vec3 *texCoord);
     double getX();
     double getY();
     double getZ();
     double getU();
     double getV();
+    Vertex *copy();
 };
 
 #endif // VERTEX_H

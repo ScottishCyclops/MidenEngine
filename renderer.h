@@ -19,12 +19,13 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#define bytesPerPixel 4
+#define vertPerTri 3
 
 #include "includes.h"
 
 #include "display.h"
 #include "vertex.h"
+#include "mesh.h"
 
 // Edge //
 
@@ -33,8 +34,8 @@ class Edge
 public:
     double deltaX;
     double deltaY;
-    Vertex *minY;
-    Vertex *maxY;
+    Vertex *min;
+    Vertex *max;
     Edge(Vertex *vert1, Vertex *vert2);
 };
 
@@ -58,13 +59,14 @@ class Renderer
 private:
     Display *m_display;
     void putpixel(uint x, uint y, Uint32 color);
-    void drawSpan(Span *span, uint y);
-    void fillEdges(Edge *edg1, Edge *edg2);
+    void drawSpan(Span *span, int y);
+    void fillEdges(Edge *shortEdge, Edge *longEdge);
 public:
     Renderer(Display *display);
     void drawPoint(Vertex *vert);
     void drawLine(Vertex *vert1, Vertex *vert2);
     void drawTriangle(Vertex *vert1, Vertex *vert2, Vertex *vert3);
+    void drawMesh(Mesh *m);
     void rainbow();
 };
 

@@ -42,3 +42,8 @@ Color *Color::lerp(Color *x, Color *y, double mix)
 
     return newColor;
 }
+
+Color *Color::copy()
+{
+    return new Color(Color::r,Color::g,Color::b,Color::a);
+}

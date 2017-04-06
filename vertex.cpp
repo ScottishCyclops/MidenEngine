@@ -25,6 +25,27 @@ Vertex::Vertex(double x, double y, double z, uint r, uint g, uint b, uint a, dou
     Vertex::texCoord = new Vec3(u,v,0);
 }
 
+Vertex::Vertex(Vec3 *location)
+{
+    Vertex::location = location;
+    Vertex::color = new Color(255,255,255,255);
+    Vertex::texCoord = new Vec3(0,0,0);
+}
+
+Vertex::Vertex(Vec3 *location, Color *color)
+{
+    Vertex::location = location;
+    Vertex::color = color;
+    Vertex::texCoord = new Vec3(0,0,0);
+}
+
+Vertex::Vertex(Vec3 *location, Color *color, Vec3 *texCoord)
+{
+    Vertex::location = location;
+    Vertex::color = color;
+    Vertex::texCoord = texCoord;
+}
+
 //getters
 
 double Vertex::getX()
@@ -50,4 +71,9 @@ double Vertex::getU()
 double Vertex::getV()
 {
     return Vertex::texCoord->y;
+}
+
+Vertex *Vertex::copy()
+{
+    return new Vertex(Vertex::location->copy(),Vertex::color->copy(),Vertex::texCoord->copy());
 }

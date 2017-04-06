@@ -19,6 +19,8 @@
 #ifndef INCLUDES_H
 #define INCLUDES_H
 
+#define bytesPerPixel 4
+
 typedef unsigned int uint;
 typedef unsigned char uchar;
 

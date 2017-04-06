@@ -17,7 +17,8 @@ SOURCES += main.cpp \
     vector3.cpp \
     vertex.cpp \
     renderer.cpp \
-    mesh.cpp
+    mesh.cpp \
+    texture.cpp
 
 HEADERS += \
     display.h \
@@ -27,5 +28,6 @@ HEADERS += \
     vertex.h \
     includes.h \
     renderer.h \
-    mesh.h
+    mesh.h \
+    texture.h
 DEFINES += QT_DEPRECATED_WARNINGS

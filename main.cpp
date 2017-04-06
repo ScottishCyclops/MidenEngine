@@ -48,14 +48,15 @@ int main()
     if(!display.isOpen)
         return 1;
 
-    Vertex v0(100,100,0, 255,0,0);
-    Vertex v1(100,300,0, 0,255,0);
-    Vertex v2(300,300,0, 0,0,255);
+    Vertex v0(0,.9,0,    255,0,0, .5,0);
+    Vertex v1(-.9,-.9,0, 0,255,0,  0,1);
+    Vertex v2(.9,-.9,0,  0,0,255,  1,1);
 
 
     Mesh m({&v0,&v1,&v2},{0,1,2});
 
-    Uint32 black = SDL_MapRGB(display.buffer->format, 0,0,0);
+    //Uint32 black = SDL_MapRGB(display.buffer->format, 0,0,0);
+    int black = 0;
 
     Game game = {&display, 0, true, 1000};
     Renderer render(&display);
@@ -78,6 +79,7 @@ int main()
             }
             else if(game.event.type == SDL_KEYDOWN)
             {
+                //KEYBOARD events
                 switch(game.event.key.keysym.sym)
                 {
                 case SDLK_UP: printf("UP\n"); break;
@@ -91,8 +93,7 @@ int main()
             }
             else if(game.event.type == SDL_MOUSEMOTION)
             {
-                if(index == 1)
-                    m.vbo[index]->location->set(getMousePosition());
+                //MOUSE events
             }
         }
 
@@ -101,7 +102,8 @@ int main()
 
         //render.drawPoint(m.vbo[0]);
         //render.drawLine(m.vbo[0],m.vbo[1]);
-        render.drawTriangle(m.vbo[m.ibo[0]],m.vbo[m.ibo[1]],m.vbo[m.ibo[2]]);
+        //render.drawTriangle(m.v[m.t[0]],m.v[m.t[1]],m.v[m.t[2]]);
+        render.drawMesh(&m);
 
         /*
         if(index == 0)

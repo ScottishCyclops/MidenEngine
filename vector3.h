@@ -32,6 +32,7 @@ public:
 
     Vec3(double x, double y, double z);
     void        set(Vec3 v);
+    void        set(Vec3 *v);
     double      length();
     void        translate(double x, double y, double z);
     void        rotateX(double angle, Vec3 o);
@@ -39,7 +40,7 @@ public:
     void        rotateZ(double angle, Vec3 o);
     void        scale(double x, double y, double z, Vec3 o);
     std::string toString();
-    Vec3 clone();
+    Vec3 *copy();
 
     static Vec3 addVectors(Vec3 v0, Vec3 v1);
     static Vec3 subVectors(Vec3 v0, Vec3 v1);
@@ -58,8 +59,9 @@ public:
 
     static double  cross2D(Vec3 v0, Vec3 v1);
     static double  triangleAreaTimesTwo(Vec3 v0,Vec3 v1,Vec3 v2);
-    static Vec3 toScreenSpace(Vec3 v,Vec3 center);
+    static Vec3 *toScreenSpace(Vec3 *v, double width);
     static Vec3 ceilVector(Vec3 v);
+    static Vec3 *lerp(Vec3 *a, Vec3 *b, double mix);
 
 };
 

@@ -33,6 +33,7 @@ public:
     Color(uint r, uint g, uint b, uint a = 255);
     Uint32 toUint32(SDL_PixelFormat *format);
     static Color *lerp(Color *x, Color *y, double mix);
+    Color *copy();
 };
 
 #endif // COLOR_H

@@ -25,17 +25,17 @@ Edge::Edge(Vertex *vert1, Vertex *vert2)
     //sort vertex by minimum y
     if(vert1->getY() < vert2->getY())
     {
-        Edge::minY = vert1;
-        Edge::maxY = vert2;
+        Edge::min = vert1;
+        Edge::max = vert2;
     }
     else
     {
-        Edge::minY = vert2;
-        Edge::maxY = vert1;
+        Edge::min = vert2;
+        Edge::max = vert1;
     }
 
-    Edge::deltaX = Edge::maxY->getX()-Edge::minY->getX();
-    Edge::deltaY = Edge::maxY->getY()-Edge::minY->getY();
+    Edge::deltaX = Edge::max->getX()-Edge::min->getX();
+    Edge::deltaY = Edge::max->getY()-Edge::min->getY();
 }
 
 // Span //
@@ -72,8 +72,8 @@ void Renderer::drawPoint(Vertex *vert)
 {
     if(vert->getX() < Renderer::m_display->width && vert->getX() >= 0 && vert->getY() < Renderer::m_display->height && vert->getY() >= 0)
     {
-        Renderer::putpixel((int)vert->getX()%Renderer::m_display->width,
-                           (int)vert->getY()%Renderer::m_display->height,
+        Renderer::putpixel(EMath::ceil(vert->getX()),
+                           EMath::ceil(vert->getY()),
                            vert->color->toUint32(Renderer::m_display->buffer->format));
     }
 }
@@ -156,48 +156,6 @@ void Renderer::drawLine(Vertex *vert1, Vertex *vert2)
     Renderer::drawPoint(vert2);
 }
 
-void Renderer::drawTriangle(Vertex *vert1, Vertex *vert2, Vertex *vert3)
-{
-    /*
-    Edge edges[3] =
-    {
-        Edge(v0,v1),
-        Edge(v1,v2),
-        Edge(v2,v0),
-    };
-
-    //sorting edges from the smallest to tallest
-    if(edges[0].getYMag() > edges[1].getYMag())
-    {
-        Edge tmp = edges[0];
-        edges[0] = edges[1];
-        edges[1] = tmp;
-    }
-    if(edges[1].getYMag() > edges[2].getYMag())
-    {
-        Edge tmp = edges[1];
-        edges[1] = edges[2];
-        edges[2] = tmp;
-
-        if(edges[0].getYMag() > edges[1].getYMag())
-        {
-            Edge tmp = edges[0];
-            edges[0] = edges[1];
-            edges[1] = tmp;
-        }
-    }
-    */
-
-    /*
-    Renderer::drawLine(vert1,vert2);
-    Renderer::drawLine(vert2,vert3);
-    Renderer::drawLine(vert3,vert1);
-    */
-    Edge e1(vert1,vert2);
-    Edge e2(vert3,vert1);
-    Renderer::fillEdges(&e1,&e2);
-}
-
 void Renderer::putpixel(uint x, uint y, Uint32 color)
 {
     Uint8 *i = (Uint8 *)Renderer::m_display->buffer->pixels + y * Renderer::m_display->surface->pitch + x * bytesPerPixel;
@@ -223,7 +181,7 @@ void Renderer::rainbow()
     }
 }
 
-void Renderer::drawSpan(Span *span, uint y)
+void Renderer::drawSpan(Span *span, int y)
 {
     if(span->deltaX == 0)
         return;
@@ -233,36 +191,81 @@ void Renderer::drawSpan(Span *span, uint y)
 
     for(double x = span->minX; x < span->maxX; x++, colorMix+=mixFactor)
     {
-        Color *color = Color::lerp(span->minCol,span->maxCol,colorMix);
-        Renderer::putpixel(EMath::ceil(x),EMath::ceil(y),color->toUint32(Renderer::m_display->buffer->format));
+        //casted to int to not compare signed and unsigned
+        if(x < (int)Renderer::m_display->width && x >= 0 && y < (int)Renderer::m_display->height && y >= 0)
+        {
+            Color *color = Color::lerp(span->minCol,span->maxCol,colorMix);
+            Renderer::putpixel(EMath::ceil(x),EMath::ceil(y),color->toUint32(Renderer::m_display->buffer->format));
+        }
     }
 }
 
-void Renderer::fillEdges(Edge *edg1, Edge *edg2)
+void Renderer::fillEdges(Edge *longEdge, Edge *shortEdge)
 {
     //if there is no vertical space, we have nothing fancy to do
-    if(edg1->deltaY == 0 || edg2->deltaY == 0)
+    if(longEdge->deltaY == 0 || shortEdge->deltaY == 0)
     {
-        Renderer::drawLine(edg1->minY,edg2->minY);
+        Renderer::drawLine(longEdge->min,shortEdge->min);
         return;
     }
 
-    double factor1 = (edg2->minY->getY() - edg1->maxY->getY()) / edg1->deltaY;
-    double factor2 = 0;
-    double factorStep1 = 1/edg1->deltaY;
-    double factorStep2 = 1/edg2->deltaY;
+    double longMix = (shortEdge->min->getY() - longEdge->min->getY()) / longEdge->deltaY;
+    double shortMix = 0;
+    double longFactor = 1/longEdge->deltaY;
+    double shortFactor = 1/shortEdge->deltaY;
 
     // loop through the lines between the edges and draw spans
-    for(double y = edg2->minY->getY(); y < edg2->maxY->getY(); y++, factor1+=factorStep1, factor2+=factorStep2)
+    for(double y = shortEdge->min->getY(); y < shortEdge->max->getY(); y++, longMix+=longFactor, shortMix+=shortFactor)
     {
         // create and draw span
-        Span s(edg1->minY->getX()+(edg1->deltaX*factor1),
-               edg2->minY->getX()+(edg2->deltaX*factor2),
-               Color::lerp(edg1->minY->color,edg1->maxY->color,factor1),
-               Color::lerp(edg2->minY->color,edg2->maxY->color,factor2));
-        Renderer::drawSpan(&s,y);
+        Span span(longEdge->min->getX()+(longEdge->deltaX*longMix),
+                  shortEdge->min->getX()+(shortEdge->deltaX*shortMix),
+                  Color::lerp(longEdge->min->color, longEdge->max->color, longMix),
+                  Color::lerp(shortEdge->min->color, shortEdge->max->color, shortMix));
+        Renderer::drawSpan(&span,y);
+    }
+}
+
+void Renderer::drawTriangle(Vertex *vert1, Vertex *vert2, Vertex *vert3)
+{
+
+    //screen space transformation
+    Vertex *localVert1 = new Vertex(Vec3::toScreenSpace(vert1->location,Renderer::m_display->width),
+                                    vert1->color->copy(),
+                                    vert1->texCoord->copy());
+    Vertex *localVert2 = new Vertex(Vec3::toScreenSpace(vert2->location,Renderer::m_display->width),
+                                    vert2->color->copy(),
+                                    vert2->texCoord->copy());
+    Vertex *localVert3 = new Vertex(Vec3::toScreenSpace(vert3->location,Renderer::m_display->width),
+                                    vert3->color->copy(),
+                                    vert3->texCoord->copy());
+
+    //edges
+    Edge edges[3] =
+    {
+        Edge(localVert1,localVert2),
+        Edge(localVert2,localVert3),
+        Edge(localVert3,localVert1),
+    };
+
+    //getting the longest edge index
+    int shortEdgeIndex = 0;
+    for(int i = 0; i < 3; i++)
+    {
+        if(edges[i].deltaY > edges[shortEdgeIndex].deltaY)
+            shortEdgeIndex = i;
     }
 
-    Renderer::drawLine(edg1->minY,edg1->maxY);
-    Renderer::drawLine(edg2->minY,edg2->maxY);
+    //filling the edges with the longest edge first, then the 2 other edges
+    //(index+x)%vertPerTri makes sure we access the x other edge while staying in the valid indexies
+    Renderer::fillEdges(&edges[shortEdgeIndex],&edges[(shortEdgeIndex+1)%vertPerTri]);
+    Renderer::fillEdges(&edges[shortEdgeIndex],&edges[(shortEdgeIndex+2)%vertPerTri]);
+}
+
+void Renderer::drawMesh(Mesh *m)
+{
+    for(int i = 0; i < m->t.length(); i+=vertPerTri)
+    {
+        Renderer::drawTriangle(m->v[m->t[i]], m->v[m->t[i+1]], m->v[m->t[i+2]]);
+    }
 }

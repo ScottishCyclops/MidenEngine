@@ -34,6 +34,14 @@ void Vec3::set(Vec3 v)
     Vec3::z = v.z;
 }
 
+//! sets the vector values to thoses of a pointer vector
+void Vec3::set(Vec3 *v)
+{
+    Vec3::x = v->x;
+    Vec3::y = v->y;
+    Vec3::z = v->z;
+}
+
 //! returns the length of the vector
 double Vec3::length()
 {
@@ -55,13 +63,13 @@ void Vec3::rotateX(double angle, Vec3 o)
     double angleSin = sin(rad);
     double angleCos = cos(rad);
 
-    Vec3::set(Vec3::subVectors(Vec3::clone(),o));
+    Vec3::set(Vec3::subVectors(*Vec3::copy(),o));
     double tmpY = (angleCos * Vec3::y) - (angleSin * Vec3::z);
     double tmpZ = (angleSin * Vec3::y) + (angleCos * Vec3::z);
 
     Vec3::y = tmpY;
     Vec3::z = tmpZ;
-    Vec3::set(Vec3::addVectors(Vec3::clone(),o));
+    Vec3::set(Vec3::addVectors(*Vec3::copy(),o));
 }
 
 //! rotates the vector on y from the given origin
@@ -71,13 +79,13 @@ void Vec3::rotateY(double angle, Vec3 o)
     double angleSin = sin(rad);
     double angleCos = cos(rad);
 
-    Vec3::set(Vec3::subVectors(Vec3::clone(),o));
+    Vec3::set(Vec3::subVectors(*Vec3::copy(),o));
     double tmpX =  (angleCos * Vec3::x) + (angleSin * Vec3::z);
     double tmpZ = -(angleSin * Vec3::x) + (angleCos * Vec3::z);
 
     Vec3::x = tmpX;
     Vec3::z = tmpZ;
-    Vec3::set(Vec3::addVectors(Vec3::clone(),o));
+    Vec3::set(Vec3::addVectors(*Vec3::copy(),o));
 }
 
 //! rotates the vector on z from the given origin
@@ -87,23 +95,23 @@ void Vec3::rotateZ(double angle, Vec3 o)
     double angleSin = sin(rad);
     double angleCos = cos(rad);
 
-    Vec3::set(Vec3::subVectors(Vec3::clone(),o));
+    Vec3::set(Vec3::subVectors(*Vec3::copy(),o));
     double tmpX = (angleCos * Vec3::x) - (angleSin * Vec3::y);
     double tmpY = (angleSin * Vec3::x) + (angleCos * Vec3::y);
 
     Vec3::x = tmpX;
     Vec3::y = tmpY;
-    Vec3::set(Vec3::addVectors(Vec3::clone(),o));
+    Vec3::set(Vec3::addVectors(*Vec3::copy(),o));
 }
 
 //! scales the vector from the given origin
 void Vec3::scale(double x, double y, double z, Vec3 o)
 {
-    Vec3::set(Vec3::subVectors(Vec3::clone(),o));
+    Vec3::set(Vec3::subVectors(*Vec3::copy(),o));
     Vec3::x*=x;
     Vec3::y*=y;
     Vec3::z*=z;
-    Vec3::set(Vec3::addVectors(Vec3::clone(),o));
+    Vec3::set(Vec3::addVectors(*Vec3::copy(),o));
 }
 
 //! returns a string representation of the vector
@@ -113,9 +121,9 @@ std::string Vec3::toString()
 }
 
 //! returns a copy of the vector
-Vec3 Vec3::clone()
+Vec3 *Vec3::copy()
 {
-    return Vec3(x,y,z);
+    return new Vec3(x,y,z);
 }
 
 Vec3 Vec3::addVectors(Vec3 v0, Vec3 v1)
@@ -191,12 +199,21 @@ double Vec3::triangleAreaTimesTwo(Vec3 v0,Vec3 v1,Vec3 v2)
     return Vec3::cross2D(delta1,delta2);
 }
 
-Vec3 Vec3::toScreenSpace(Vec3 v,Vec3 center)
+Vec3 *Vec3::toScreenSpace(Vec3 *v, double width)
 {
-    return Vec3(v.x*center.x+center.x, v.y*(-center.y)+center.y,0);
+    //to keep proportions, we scale based on the width of the screen,
+    //not width and height
+    //return new Vec3(EMath::map(v->x,0,1,0,width),EMath::map(v->y,0,1,width,0));
+    double widthOverTwo = width/2;
+    return new Vec3(v->x*widthOverTwo+widthOverTwo,v->y*(-widthOverTwo)+widthOverTwo);
 }
 
 Vec3 Vec3::ceilVector(Vec3 v)
 {
     return Vec3(ceil(v.x),ceil(v.y),ceil(v.z));
+}
+
+Vec3 *Vec3::lerp(Vec3 *a, Vec3 *b, double mix)
+{
+    return new Vec3(EMath::lerp(a->x,b->x,mix),EMath::lerp(a->y,b->y,mix),EMath::lerp(a->z,b->z,mix));
 }
