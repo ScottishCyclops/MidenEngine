@@ -26,14 +26,19 @@ Color::Color(uint r, uint g, uint b, uint a)
     Color::a = a;
 }
 
-Color Color::lerp(Color *x, Color *y, double mix)
+Uint32 Color::toUint32(SDL_PixelFormat *format)
 {
-    Color newColor(0,0,0,0);
+    return SDL_MapRGB(format,Color::r,Color::g,Color::b);
+}
 
-    newColor.r = EMath::lerp(x->r, y->r, mix);
-    newColor.g = EMath::lerp(x->g, y->g, mix);
-    newColor.b = EMath::lerp(x->b, y->b, mix);
-    newColor.a = EMath::lerp(x->a, y->a, mix);
+Color *Color::lerp(Color *x, Color *y, double mix)
+{
+    Color *newColor = new Color(0,0,0,0);
+
+    newColor->r = EMath::lerp(x->r, y->r, mix);
+    newColor->g = EMath::lerp(x->g, y->g, mix);
+    newColor->b = EMath::lerp(x->b, y->b, mix);
+    newColor->a = EMath::lerp(x->a, y->a, mix);
 
     return newColor;
 }

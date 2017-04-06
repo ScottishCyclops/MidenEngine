@@ -19,6 +19,10 @@
 #ifndef EMATH_H
 #define EMATH_H
 
+#include <cmath>
+
+#define pi 3.141592654
+
 class EMath
 {
 public:
@@ -30,6 +34,7 @@ public:
     static double map(double value, double min, double max, double newMin, double newMax);
     static double normalize(double value, double zero, double one);
     static int ceil(double x);
+    static double pyth(double a, double b);
 };
 
 #endif // EMATH_H

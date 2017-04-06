@@ -39,7 +39,7 @@ public:
     void        rotateZ(double angle, Vec3 o);
     void        scale(double x, double y, double z, Vec3 o);
     std::string toString();
-    Vec3     clone();
+    Vec3 clone();
 
     static Vec3 addVectors(Vec3 v0, Vec3 v1);
     static Vec3 subVectors(Vec3 v0, Vec3 v1);

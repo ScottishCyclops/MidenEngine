@@ -42,7 +42,7 @@ double EMath::abs(double x)
 
 double EMath::lerp(double a, double b, double mix)
 {
-    return  (1 - mix) * a + mix * b;
+    return (1 - mix)*a + mix*b;
 }
 
 double EMath::normalize(double value, double zero, double one)

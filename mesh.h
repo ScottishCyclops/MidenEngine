@@ -1,5 +1,5 @@
 /*
-    MidenEngine is a full C++ 3D Engine written on top of Xlib
+    MidenEngine is a full C++ 3D Engine written on top of SDL2
     Copyright (C) 2017 Scott Winkelmann
 
     This program is free software: you can redistribute it and/or modify
@@ -16,28 +16,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef VERTEX_H
-#define VERTEX_H
+#ifndef MESH_H
+#define MESH_H
 
 #include "includes.h"
 
-#include "vector3.h"
-#include "color.h"
+#include "vertex.h"
 
-
-class Vertex
+class Mesh
 {
 public:
-    Vec3* location;
-    Vec3* texCoord;
-    Color* color;
-
-    Vertex(double x, double y, double z, uint r, uint g, uint b, uint a = 255, double u = 0, double v = 0);
-    double getX();
-    double getY();
-    double getZ();
-    double getU();
-    double getV();
+    QList<Vertex *>vbo;
+    QList<uint>ibo;
+    Mesh(QList<Vertex *> vbo, QList<uint> ibo);
 };
 
-#endif // VERTEX_H
+#endif // MESH_H

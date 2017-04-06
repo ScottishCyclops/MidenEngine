@@ -19,6 +19,8 @@
 #ifndef COLOR_H
 #define COLOR_H
 
+#include "includes.h"
+
 #include "emath.h"
 
 class Color
@@ -29,7 +31,8 @@ public:
     uint b;
     uint a;
     Color(uint r, uint g, uint b, uint a = 255);
-    static Color lerp(Color *x, Color *y, double mix);
+    Uint32 toUint32(SDL_PixelFormat *format);
+    static Color *lerp(Color *x, Color *y, double mix);
 };
 
 #endif // COLOR_H
