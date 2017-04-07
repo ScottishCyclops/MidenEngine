@@ -112,7 +112,7 @@ int main()
         //Rendering
         render.clearTarget();
 
-        m->rotateY(.5,m->getCenter());
+        //m->rotateY(.5,m->getCenter());
 
 
         render.drawMesh(m);
