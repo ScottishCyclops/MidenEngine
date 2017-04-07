@@ -4,6 +4,7 @@
 This is a personnal project aimed at improuving my C++ skills and understanding of game engines.
 
 I first started this project using Python.
+
 I went pretty far, but decided to start over in C++ for obvious performance gains.
 
 ## Features
@@ -18,6 +19,7 @@ I went pretty far, but decided to start over in C++ for obvious performance gain
 
 ## Built from Qt with SDL.
 Qt : https://www.qt.io/
+
 SDL : https://libsdl.org/
 
 Scott
