@@ -20,15 +20,31 @@
 #define MESH_H
 
 #include "includes.h"
+#include <fstream>
+#include <sstream>
+#include <QString>
 
 #include "vertex.h"
+#include "texture.h"
 
 class Mesh
 {
 public:
+    Texture *tex;
     QList<Vertex *>v;
-    QList<uint>t;
-    Mesh(QList<Vertex *> v, QList<uint> t);
+    QList<int>t;
+    Mesh(QList<Vertex *> v, QList<int> t);
+    Mesh(QList<Vertex *> v, QList<int> t, Texture *tex);
+
+    //transformation
+    void translate(double x, double y, double z);
+    void rotateX(double angle, Vec3 origin = Vec3(0,0,0));
+    void rotateY(double angle, Vec3 origin = Vec3(0,0,0));
+    void rotateZ(double angle, Vec3 origin = Vec3(0,0,0));
+    void scale(double x, double y, double z, Vec3 origin = Vec3(0,0,0));
+
+    Vec3 getCenter();
+    static Mesh *importMesh(string objPath, Texture *tex);
 };
 
 #endif // MESH_H

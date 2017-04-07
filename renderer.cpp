@@ -40,32 +40,53 @@ Edge::Edge(Vertex *vert1, Vertex *vert2)
 
 // Span //
 
-Span::Span(double x1, double x2, Color *col1, Color *col2)
+Span::Span(double x1, double x2, Vec3 *coord1, Vec3 *coord2)
 {
     //sort xs by minimum
     if(x1 < x2)
     {
         Span::minX = x1;
         Span::maxX = x2;
-        Span::minCol = col1;
-        Span::maxCol = col2;
+
+        Span::minCoord = coord1;
+        Span::maxCoord = coord2;
     }
     else
     {
         Span::minX = x2;
         Span::maxX = x1;
-        Span::minCol = col2;
-        Span::maxCol = col1;
+
+        Span::minCoord = coord2;
+        Span::maxCoord = coord1;
     }
 
     Span::deltaX = Span::maxX-Span::minX;
+    Span::deltaU = Span::maxCoord->x-Span::minCoord->x;
+    Span::deltaV = Span::maxCoord->y-Span::minCoord->y;
 }
 
 // Renderer //
 
-Renderer::Renderer(Display *display)
+Renderer::Renderer(Display *display, double fov)
 {
     Renderer::m_display = display;
+    Renderer::m_backColor = 0;
+
+    Renderer::m_fov = fov;
+    Renderer::m_tanHalfFov = tan(EMath::radians(Renderer::m_fov/2));
+
+    Renderer::m_rotation = new Vec3(0,0,0);
+    Renderer::updateRotation();
+}
+
+void Renderer::updateRotation()
+{
+    //we ignore y because the camera never really rotates on its y
+    double radX = EMath::radians(Renderer::m_rotation->x);
+    double radZ = EMath::radians(Renderer::m_rotation->z);
+
+    Renderer::m_rotSin = new Vec3(sin(radX),0,sin(radZ));
+    Renderer::m_rotCos = new Vec3(cos(radX),1,cos(radZ));
 }
 
 void Renderer::drawPoint(Vertex *vert)
@@ -181,31 +202,31 @@ void Renderer::rainbow()
     }
 }
 
-void Renderer::drawSpan(Span *span, int y)
+void Renderer::drawSpan(Span *span, int y, Texture *tex)
 {
+    //prevent zero division error
     if(span->deltaX == 0)
         return;
 
-    double colorMix = 0;
+    double coordMix = 0;
     double mixFactor = 1/span->deltaX;
 
-    for(double x = span->minX; x < span->maxX; x++, colorMix+=mixFactor)
+    for(double x = span->minX; x < span->maxX; x++, coordMix+=mixFactor)
     {
         //casted to int to not compare signed and unsigned
         if(x < (int)Renderer::m_display->width && x >= 0 && y < (int)Renderer::m_display->height && y >= 0)
         {
-            Color *color = Color::lerp(span->minCol,span->maxCol,colorMix);
-            Renderer::putpixel(EMath::ceil(x),EMath::ceil(y),color->toUint32(Renderer::m_display->buffer->format));
+            Vec3 *uv = Vec3::lerp(span->minCoord,span->maxCoord,coordMix);
+            Renderer::putpixel(int(x),(int)y,*tex->getPixelAt(uv));
         }
     }
 }
 
-void Renderer::fillEdges(Edge *longEdge, Edge *shortEdge)
+void Renderer::fillEdges(Edge *longEdge, Edge *shortEdge, Texture *tex)
 {
     //if there is no vertical space, we have nothing fancy to do
     if(longEdge->deltaY == 0 || shortEdge->deltaY == 0)
     {
-        Renderer::drawLine(longEdge->min,shortEdge->min);
         return;
     }
 
@@ -220,25 +241,35 @@ void Renderer::fillEdges(Edge *longEdge, Edge *shortEdge)
         // create and draw span
         Span span(longEdge->min->getX()+(longEdge->deltaX*longMix),
                   shortEdge->min->getX()+(shortEdge->deltaX*shortMix),
-                  Color::lerp(longEdge->min->color, longEdge->max->color, longMix),
-                  Color::lerp(shortEdge->min->color, shortEdge->max->color, shortMix));
-        Renderer::drawSpan(&span,y);
+                  Vec3::lerp(longEdge->min->texCoord,longEdge->max->texCoord,longMix),
+                  Vec3::lerp(shortEdge->min->texCoord,shortEdge->max->texCoord,shortMix));
+        Renderer::drawSpan(&span,y,tex);
     }
 }
 
-void Renderer::drawTriangle(Vertex *vert1, Vertex *vert2, Vertex *vert3)
+void Renderer::drawTriangle(Vertex *vert1, Vertex *vert2, Vertex *vert3, Texture *tex)
 {
+    //if any point is too close, we don't render the triangle to avoid errors
+    if(vert1->getZ()+Renderer::m_tanHalfFov <= 0 || vert2->getZ()+Renderer::m_tanHalfFov <= 0 || vert3->getZ()+Renderer::m_tanHalfFov <= 0)
+        return;
 
-    //screen space transformation
-    Vertex *localVert1 = new Vertex(Vec3::toScreenSpace(vert1->location,Renderer::m_display->width),
-                                    vert1->color->copy(),
-                                    vert1->texCoord->copy());
-    Vertex *localVert2 = new Vertex(Vec3::toScreenSpace(vert2->location,Renderer::m_display->width),
-                                    vert2->color->copy(),
-                                    vert2->texCoord->copy());
-    Vertex *localVert3 = new Vertex(Vec3::toScreenSpace(vert3->location,Renderer::m_display->width),
-                                    vert3->color->copy(),
-                                    vert3->texCoord->copy());
+    //screen space transformation after 3D projection
+    Vertex *localVert1 = new Vertex(Vec3::toScreenSpace(Renderer::projectVector(vert1->location),Renderer::m_display->width),
+                                    vert1->color,
+                                    vert1->texCoord);
+    Vertex *localVert2 = new Vertex(Vec3::toScreenSpace(Renderer::projectVector(vert2->location),Renderer::m_display->width),
+                                    vert2->color,
+                                    vert2->texCoord);
+    Vertex *localVert3 = new Vertex(Vec3::toScreenSpace(Renderer::projectVector(vert3->location),Renderer::m_display->width),
+                                    vert3->color,
+                                    vert3->texCoord);
+
+
+    //if all the points are outside the screen we don't render it
+    if(((localVert1->getX() < 0 || localVert1->getX() > Renderer::m_display->width) || (localVert1->getY() < 0 || localVert1->getY() > Renderer::m_display->height)) &&
+            ((localVert2->getX() < 0 || localVert2->getX() > Renderer::m_display->width) || (localVert2->getY() < 0 || localVert2->getY() > Renderer::m_display->height)) &&
+            ((localVert3->getX() < 0 || localVert3->getX() > Renderer::m_display->width) || (localVert3->getY() < 0 || localVert3->getY() > Renderer::m_display->height)))
+        return;
 
     //edges
     Edge edges[3] =
@@ -258,14 +289,77 @@ void Renderer::drawTriangle(Vertex *vert1, Vertex *vert2, Vertex *vert3)
 
     //filling the edges with the longest edge first, then the 2 other edges
     //(index+x)%vertPerTri makes sure we access the x other edge while staying in the valid indexies
-    Renderer::fillEdges(&edges[shortEdgeIndex],&edges[(shortEdgeIndex+1)%vertPerTri]);
-    Renderer::fillEdges(&edges[shortEdgeIndex],&edges[(shortEdgeIndex+2)%vertPerTri]);
+    Renderer::fillEdges(&edges[shortEdgeIndex],&edges[(shortEdgeIndex+1)%vertPerTri],tex);
+    Renderer::fillEdges(&edges[shortEdgeIndex],&edges[(shortEdgeIndex+2)%vertPerTri],tex);
 }
 
 void Renderer::drawMesh(Mesh *m)
 {
     for(int i = 0; i < m->t.length(); i+=vertPerTri)
     {
-        Renderer::drawTriangle(m->v[m->t[i]], m->v[m->t[i+1]], m->v[m->t[i+2]]);
+        Renderer::drawTriangle(m->v[m->t[i]], m->v[m->t[i+1]], m->v[m->t[i+2]],m->tex);
     }
+}
+
+void Renderer::drawTex(Texture *tex)
+{
+    double uStep = Renderer::m_display->width/(double)tex->width;
+    double vStep = Renderer::m_display->height/(double)tex->height;
+    for(uint x = 0; x < Renderer::m_display->width; x++)
+    {
+        for(uint y = 0; y < Renderer::m_display->height; y++)
+        {
+            Renderer::putpixel(x,y,*(Uint32*) tex->rawPixel((int)(x/uStep),(int)(y/vStep)));
+        }
+    }
+}
+
+Vec3 *Renderer::projectVector(Vec3 *vec)
+{
+    /*
+    Vec3 *vector = vec->copy();
+    vector->z+= Renderer::m_tanHalfFov;
+
+    double dz = Renderer::m_rotCos->x*(Renderer::m_rotCos->y*vector->z+Renderer::m_rotSin->y*(Renderer::m_rotSin->z*vector->x))-Renderer::m_rotSin->x*(Renderer::m_rotCos->z*vector->y-Renderer::m_rotSin->z*vector->x);
+    if(dz == 0)
+        return vec;
+
+    double dx = Renderer::m_rotCos->y*(Renderer::m_rotSin->z*vector->y+Renderer::m_rotCos->z*vector->x)-Renderer::m_rotSin->y*vector->z;
+    double dy = Renderer::m_rotSin->x*(Renderer::m_rotCos->y*vector->z+Renderer::m_rotSin->y*(Renderer::m_rotSin->z*vector->y+Renderer::m_rotCos->z*vector->x))+Renderer::m_rotCos->x*(Renderer::m_rotCos->z*vector->y-Renderer::m_rotSin->z*vector->x);
+
+    double bx;
+    double by;
+
+    if(dx == 0)
+        bx = dx;
+    else
+        bx = Renderer::m_tanHalfFov/dx;
+
+    if(dy == 0)
+        by = dy;
+    else
+        by = Renderer::m_tanHalfFov/dy;
+
+
+    return new Vec3(bx,by,0);
+    */
+    Vec3 *projected = vec->copy();
+    projected->z+=Renderer::m_tanHalfFov;
+    if(projected->z != 0)
+    {
+        projected->x /= projected->z;
+        projected->y /= projected->z;
+    }
+
+    return projected;
+}
+
+void Renderer::clearTarget()
+{
+    SDL_FillRect(Renderer::m_display->buffer,NULL,Renderer::m_backColor);
+}
+
+void Renderer::setBackColor(uint r, uint g, uint b)
+{
+    Renderer::m_backColor = SDL_MapRGB(Renderer::m_display->buffer->format,r,g,b);
 }

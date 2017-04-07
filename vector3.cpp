@@ -215,5 +215,7 @@ Vec3 Vec3::ceilVector(Vec3 v)
 
 Vec3 *Vec3::lerp(Vec3 *a, Vec3 *b, double mix)
 {
-    return new Vec3(EMath::lerp(a->x,b->x,mix),EMath::lerp(a->y,b->y,mix),EMath::lerp(a->z,b->z,mix));
+    return new Vec3(EMath::lerp(a->x,b->x,mix),
+                    EMath::lerp(a->y,b->y,mix),
+                    EMath::lerp(a->z,b->z,mix));
 }

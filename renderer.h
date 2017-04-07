@@ -46,10 +46,14 @@ class Span
 public:
     double minX;
     double maxX;
+    Vec3 *minCoord;
+    Vec3 *maxCoord;
+
     double deltaX;
-    Color *minCol;
-    Color *maxCol;
-    Span(double x1, double x2, Color *col1, Color *col2);
+    double deltaU;
+    double deltaV;
+
+    Span(double x1, double x2, Vec3 *coord1, Vec3 *coord2);
 };
 
 // Renderer //
@@ -58,16 +62,29 @@ class Renderer
 {
 private:
     Display *m_display;
+    Uint32 m_backColor;
+    double m_fov;
+    double m_tanHalfFov;
+    Vec3 *m_rotation;
+    Vec3 *m_rotSin;
+    Vec3 *m_rotCos;
+
     void putpixel(uint x, uint y, Uint32 color);
-    void drawSpan(Span *span, int y);
-    void fillEdges(Edge *shortEdge, Edge *longEdge);
+    void drawSpan(Span *span, int y, Texture *tex);
+    void fillEdges(Edge *shortEdge, Edge *longEdge, Texture *tex);
+    Vec3 *projectVector(Vec3 *vec);
+    void updateRotation();
+
 public:
-    Renderer(Display *display);
+    Renderer(Display *display, double fov);
     void drawPoint(Vertex *vert);
     void drawLine(Vertex *vert1, Vertex *vert2);
-    void drawTriangle(Vertex *vert1, Vertex *vert2, Vertex *vert3);
+    void drawTriangle(Vertex *vert1, Vertex *vert2, Vertex *vert3, Texture *tex);
     void drawMesh(Mesh *m);
     void rainbow();
+    void drawTex(Texture *tex);
+    void clearTarget();
+    void setBackColor(uint r, uint g, uint b);
 };
 
 #endif // RENDERER_H

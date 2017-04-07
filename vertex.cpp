@@ -39,6 +39,13 @@ Vertex::Vertex(Vec3 *location, Color *color)
     Vertex::texCoord = new Vec3(0,0,0);
 }
 
+Vertex::Vertex(Vec3 *location, Vec3 *texCoord)
+{
+    Vertex::location = location;
+    Vertex::color = new Color(0,0,0);
+    Vertex::texCoord = texCoord;
+}
+
 Vertex::Vertex(Vec3 *location, Color *color, Vec3 *texCoord)
 {
     Vertex::location = location;

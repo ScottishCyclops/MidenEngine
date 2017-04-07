@@ -22,6 +22,8 @@ Texture::Texture(string path, SDL_Surface *reference)
 {
     Texture::path = path;
     Texture::m_ref = reference;
+    Texture::m_surface = NULL;
+
     Texture::loadBMP(Texture::path);
     Texture::optimizeTexture(Texture::m_ref);
 }
@@ -95,8 +97,9 @@ double getBilinearFilteredPixelColor(Texture tex, double u, double v) {
 
 Uint32 *Texture::getPixelAt(Vec3 *coord)
 {
-    double u = coord->x * Texture::width - .5;
-    double v = coord->y * Texture::width - .5;
+    double u = coord->x * (Texture::width-1);
+    double v = coord->y * (Texture::height-1);
+    /*
     int x = (int)u;
     int y = (int)v;
 
@@ -105,11 +108,17 @@ Uint32 *Texture::getPixelAt(Vec3 *coord)
 
     double uOpposite = 1-uRatio;
     double vOpposite = 1-vRatio;
+    */
 
-    return (Uint32 *) Texture::rawPixel(u,v);
+    return (Uint32 *) Texture::rawPixel((int)u%Texture::width,(int)v%Texture::height);
 }
 
 Uint8 *Texture::rawPixel(uint x, uint y)
 {
     return (Uint8 *)Texture::m_surface->pixels + y * Texture::m_surface->pitch + x * bytesPerPixel;
+}
+
+void Texture::free()
+{
+    SDL_FreeSurface(Texture::m_surface);
 }

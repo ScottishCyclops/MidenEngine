@@ -22,8 +22,12 @@
 #include "vertex.h"
 #include "renderer.h"
 #include "mesh.h"
+#include "texture.h"
 
+const float second = 1000.f;
 const string resourcesFolder = ".././resources";
+const double factor = .1;
+const double rotFac = 10;
 
 struct Game
 {
@@ -34,38 +38,41 @@ struct Game
 };
 
 Vec3 getMousePosition();
-SDL_Surface *loadImage(string path, SDL_Surface *reference);
 
 int main()
 {
     //creating the display
     Display display(800,800,"Miden Engine");
 
-
-
     //openning the display
     display.open();
     if(!display.isOpen)
         return 1;
 
-    Vertex v0(0,.9,0,    255,0,0, .5,0);
-    Vertex v1(-.9,-.9,0, 0,255,0,  0,1);
-    Vertex v2(.9,-.9,0,  0,0,255,  1,1);
+    double size = .5;
+    //test vertex
+    Vertex v0(0,size,0,  255,0,0,0,  .5,0);
+    Vertex v1(-size,-size,0, 0,255,0,0,  0,1);
+    Vertex v2(size,-size,0,  0,0,255,0,  1,1);
+
+    //test texture
+    Texture tex(resourcesFolder+"/suzanne.bmp",display.buffer);
 
 
-    Mesh m({&v0,&v1,&v2},{0,1,2});
+    //test mesh
+    Mesh *m = Mesh::importMesh(resourcesFolder+"/suzanne.obj",&tex);
+    m->scale(1.5,1.5,1.5,m->getCenter());
 
-    //Uint32 black = SDL_MapRGB(display.buffer->format, 0,0,0);
-    int black = 0;
 
     Game game = {&display, 0, true, 1000};
-    Renderer render(&display);
+    Renderer render(&display,150);
     int index = 0;
+    uint frames = 0;
 
+    //gettings time in ms since app start
     uint startTime = SDL_GetTicks();
     uint lastTime = startTime;
 
-    uint frames = 0;
     //Game loop
     while(game.running)
     {
@@ -82,10 +89,15 @@ int main()
                 //KEYBOARD events
                 switch(game.event.key.keysym.sym)
                 {
-                case SDLK_UP: printf("UP\n"); break;
-                case SDLK_DOWN: printf("DOWN\n"); break;
-                case SDLK_LEFT: printf("LEFT\n"); break;
-                case SDLK_RIGHT: printf("RIGHT\n"); break;
+                case SDLK_UP:    m->translate(0,factor,0);  break;
+                case SDLK_DOWN:  m->translate(0,-factor,0); break;
+                case SDLK_LEFT:  m->translate(-factor,0,0); break;
+                case SDLK_RIGHT: m->translate(factor,0,0);  break;
+                case SDLK_w:     m->translate(0,0,factor); break;
+                case SDLK_a:     m->rotateY(rotFac,m->getCenter());        break;
+                case SDLK_s:     m->translate(0,0,-factor);  break;
+                case SDLK_d:     m->rotateY(-rotFac,m->getCenter());       break;
+
                 case SDLK_ESCAPE: game.running = false; break;
                 case SDLK_TAB: index == 0 ? index = 1 : index  = 0; break;
                 default : printf("OTHER\n"); break;
@@ -98,65 +110,33 @@ int main()
         }
 
         //Rendering
-        SDL_FillRect(display.buffer,NULL,black);
+        render.clearTarget();
 
-        //render.drawPoint(m.vbo[0]);
-        //render.drawLine(m.vbo[0],m.vbo[1]);
-        //render.drawTriangle(m.v[m.t[0]],m.v[m.t[1]],m.v[m.t[2]]);
-        render.drawMesh(&m);
+        m->rotateY(.5,m->getCenter());
 
-        /*
-        if(index == 0)
-            m.vbo[1]->location->rotateZ(.3,*m.vbo[0]->location);
-            */
+
+        render.drawMesh(m);
+        //render.drawTex(&tex);
 
         display.swap();
         frames++;
 
         //FPS output
-        if(SDL_GetTicks()-lastTime >= 1000)
+        if(SDL_GetTicks()-lastTime >= second)
         {
             printf("FPS : %d\n",frames);
             lastTime = SDL_GetTicks();
             frames = 0;
         }
 
-        SDL_Delay(1000.f/game.fpsCap);
+        //framerate cap
+        //SDL_Delay(second/game.fpsCap);
     }
 
 
+    //quitting SDL and freeing the display
+    tex.free();
     display.close();
-}
-
-/**
- * @brief Loads an image as an SDL surface and optimizes it
- * @param path : the path to the BMP file
- * @param display : the display to opzimize for
- * @return a pointer to the SDL Surface, or NULL pointer
- */
-SDL_Surface *loadImage(string path, SDL_Surface *reference)
-{
-    SDL_Surface *img = NULL;
-
-    //importing raw image
-    SDL_Surface *raw = SDL_LoadBMP(path.c_str());
-    if(raw == NULL)
-    {
-        printf("Error loading image : %s\n",SDL_GetError());
-    }
-    else
-    {
-        //optimizing image to fit display surface format
-        img = SDL_ConvertSurface(raw, reference->format, 0);
-        if(img == NULL)
-        {
-            printf("Error converting image : %s\n",SDL_GetError());
-        }
-
-        //destroying the raw image
-        SDL_FreeSurface(raw);
-    }
-    return img;
 }
 
 /**

@@ -32,14 +32,16 @@ private:
     SDL_Surface *m_ref;
     void loadBMP(string path);
     void optimizeTexture(SDL_Surface *reference);
-    Uint8 *rawPixel(uint x,uint y);
 public:
     string path;
     uint width;
     uint height;
+
     Texture(string path, SDL_Surface *reference);
     void reload();
     Uint32 *getPixelAt(Vec3 *coord);
+    Uint8 *rawPixel(uint x,uint y);
+    void free();
 };
 
 #endif // TEXTURE_H

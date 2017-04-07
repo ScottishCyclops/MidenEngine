@@ -35,6 +35,7 @@ public:
     Vertex(double x, double y, double z, uint r=255, uint g=255, uint b=255, uint a=255, double u=0, double v=0);
     Vertex(Vec3 *location);
     Vertex(Vec3 *location, Color *color);
+    Vertex(Vec3 *location, Vec3 *texCoord);
     Vertex(Vec3 *location, Color *color, Vec3 *texCoord);
     double getX();
     double getY();
