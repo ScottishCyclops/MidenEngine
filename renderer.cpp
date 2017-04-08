@@ -88,7 +88,7 @@ void Renderer::updateRotation()
     Renderer::m_rotSin = new Vec3(sin(radX),0,sin(radZ));
     Renderer::m_rotCos = new Vec3(cos(radX),1,cos(radZ));
 }
-
+/*
 void Renderer::drawPoint(Vertex *vert)
 {
     if(vert->getX() < Renderer::m_display->width && vert->getX() >= 0 && vert->getY() < Renderer::m_display->height && vert->getY() >= 0)
@@ -176,7 +176,7 @@ void Renderer::drawLine(Vertex *vert1, Vertex *vert2)
     Renderer::drawPoint(vert1);
     Renderer::drawPoint(vert2);
 }
-
+*/
 void Renderer::putpixel(uint x, uint y, Uint32 color)
 {
     Uint8 *i = (Uint8 *)Renderer::m_display->buffer->pixels + y * Renderer::m_display->surface->pitch + x * bytesPerPixel;
@@ -255,13 +255,10 @@ void Renderer::drawTriangle(Vertex *vert1, Vertex *vert2, Vertex *vert3, Texture
 
     //screen space transformation after 3D projection
     Vertex *localVert1 = new Vertex(Vec3::toScreenSpace(Renderer::projectVector(vert1->location),Renderer::m_display->width),
-                                    vert1->color,
                                     vert1->texCoord);
     Vertex *localVert2 = new Vertex(Vec3::toScreenSpace(Renderer::projectVector(vert2->location),Renderer::m_display->width),
-                                    vert2->color,
                                     vert2->texCoord);
     Vertex *localVert3 = new Vertex(Vec3::toScreenSpace(Renderer::projectVector(vert3->location),Renderer::m_display->width),
-                                    vert3->color,
                                     vert3->texCoord);
 
 
@@ -295,9 +292,11 @@ void Renderer::drawTriangle(Vertex *vert1, Vertex *vert2, Vertex *vert3, Texture
 
 void Renderer::drawMesh(Mesh *m)
 {
-    for(int i = 0; i < m->t.length(); i+=vertPerTri)
+    for(int i = 0; i < m->f.length(); i+=vertPerTri+coordPerTri)
     {
-        Renderer::drawTriangle(m->v[m->t[i]], m->v[m->t[i+1]], m->v[m->t[i+2]],m->tex);
+        Renderer::drawTriangle( new Vertex(m->v[m->f[i  ]],m->vt[m->f[i+1]]),
+                                new Vertex(m->v[m->f[i+2]],m->vt[m->f[i+3]]),
+                                new Vertex(m->v[m->f[i+4]],m->vt[m->f[i+5]]),m->tex);
     }
 }
 

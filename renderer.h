@@ -20,6 +20,7 @@
 #define RENDERER_H
 
 #define vertPerTri 3
+#define coordPerTri 3
 
 #include "includes.h"
 
@@ -77,8 +78,8 @@ private:
 
 public:
     Renderer(Display *display, double fov);
-    void drawPoint(Vertex *vert);
-    void drawLine(Vertex *vert1, Vertex *vert2);
+    //void drawPoint(Vertex *vert);
+    //void drawLine(Vertex *vert1, Vertex *vert2);
     void drawTriangle(Vertex *vert1, Vertex *vert2, Vertex *vert3, Texture *tex);
     void drawMesh(Mesh *m);
     void rainbow();

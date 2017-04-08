@@ -22,7 +22,6 @@
 #include "includes.h"
 
 #include "vector3.h"
-#include "color.h"
 
 
 class Vertex
@@ -30,13 +29,11 @@ class Vertex
 public:
     Vec3* location;
     Vec3* texCoord;
-    Color* color;
 
-    Vertex(double x, double y, double z, uint r=255, uint g=255, uint b=255, uint a=255, double u=0, double v=0);
+    Vertex(double x, double y, double z);
+    Vertex(double x, double y, double z, double u, double v);
     Vertex(Vec3 *location);
-    Vertex(Vec3 *location, Color *color);
     Vertex(Vec3 *location, Vec3 *texCoord);
-    Vertex(Vec3 *location, Color *color, Vec3 *texCoord);
     double getX();
     double getY();
     double getZ();

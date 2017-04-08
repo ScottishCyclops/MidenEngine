@@ -18,17 +18,18 @@
 
 #include "mesh.h"
 
-Mesh::Mesh(QList<Vertex*> v, QList<int> t)
+Mesh::Mesh(QList<Vec3*> v, QList<int> f)
 {
     Mesh::v = v;
-    Mesh::t = t;
+    Mesh::f = f;
     Mesh::tex = NULL;
 }
 
-Mesh::Mesh(QList<Vertex*> v, QList<int> t, Texture *tex)
+Mesh::Mesh(QList<Vec3*> v, QList<Vec3 *> vt, QList<int> f, Texture *tex)
 {
     Mesh::v = v;
-    Mesh::t = t;
+    Mesh::vt = vt;
+    Mesh::f = f;
     Mesh::tex = tex;
 }
 
@@ -36,7 +37,7 @@ void Mesh::translate(double x, double y, double z)
 {
     for(int i = 0; i < Mesh::v.length(); i++)
     {
-        Mesh::v[i]->location->translate(x,y,z);
+        Mesh::v[i]->translate(x,y,z);
     }
 }
 
@@ -44,7 +45,7 @@ void Mesh::rotateX(double angle, Vec3 origin)
 {
     for(int i = 0; i < Mesh::v.length(); i++)
     {
-        Mesh::v[i]->location->rotateX(angle,origin);
+        Mesh::v[i]->rotateX(angle,origin);
     }
 }
 
@@ -52,7 +53,7 @@ void Mesh::rotateY(double angle, Vec3 origin)
 {
     for(int i = 0; i < Mesh::v.length(); i++)
     {
-        Mesh::v[i]->location->rotateY(angle,origin);
+        Mesh::v[i]->rotateY(angle,origin);
     }
 }
 
@@ -60,7 +61,7 @@ void Mesh::rotateZ(double angle, Vec3 origin)
 {
     for(int i = 0; i < Mesh::v.length(); i++)
     {
-        Mesh::v[i]->location->rotateZ(angle,origin);
+        Mesh::v[i]->rotateZ(angle,origin);
     }
 }
 
@@ -68,7 +69,7 @@ void Mesh::scale(double x, double y, double z, Vec3 origin)
 {
     for(int i = 0; i < Mesh::v.length(); i++)
     {
-        Mesh::v[i]->location->scale(x,y,z,origin);
+        Mesh::v[i]->scale(x,y,z,origin);
     }
 }
 
@@ -77,7 +78,7 @@ Vec3 Mesh::getCenter()
     Vec3 total(0,0,0);
     for(int i = 0; i < Mesh::v.length(); i++)
     {
-        total = Vec3::addVectors(total,*Mesh::v[i]->location);
+        total = Vec3::addVectors(total,*Mesh::v[i]);
     }
 
     return Vec3::divScalar(total,Mesh::v.length());
@@ -85,53 +86,19 @@ Vec3 Mesh::getCenter()
 
 Mesh *Mesh::importMesh(string objPath, Texture *tex)
 {
-/*
-    """reads an .obj file and returns a mesh build from it
-    For now, assumes that the .obj contains only one mesh
-    and the faces are all triangles."""
-    fileName = "./resources/"+fileName+".obj"
-
-    #r -> read mode
-    with open(fileName, "r") as f:
-        content = f.read()
-    f.close()
-    lines = content.splitlines()
-
-    '''Vectors'''
-    vs = []
-    for line in lines:
-        if line.startswith("v"):
-            #we found a vertex
-            v = line[2:].split(" ")
-            vs.append(Vector(float(v[0]), float(v[1]), float(v[2])))
-
-    '''Triangles'''
-    ts = []
-    for line in lines:
-        if line.startswith("f"):
-            #we found a face
-            #we assume it's a triangle
-            #TODO: triangulate faces
-            f = line[2:].split(" ")
-            #-1 because our vectors list first index is 0, not 1
-            ts.append(int(f[0])-1)
-            ts.append(int(f[1])-1)
-            ts.append(int(f[2])-1)
-
-    return Mesh(np.array(vs),np.array(ts,np.int16))
-    */
     ifstream objFile(objPath);
 
     //the data we are going to get
-    //vectors
+    //vertex
     QList<Vec3 *>v;
-    //texture coordinates
+    //vertex texture coord
     QList<Vec3 *>vt;
-    //face index
+    //faces
     QList<int> f;
 
     for(string line; getline(objFile, line);)
     {
+        //transforming to QString to have better comparaison fonctions
         QString qline = line.c_str();
 
         //if we found a vertex
@@ -153,16 +120,15 @@ Mesh *Mesh::importMesh(string objPath, Texture *tex)
             //we skip the first element because it is the "f"
             for(int i = 1; i < pos.length(); i++)
             {
+                QStringList values = pos[i].split("/");
                 //-1 to get a 0 indexed list, not 1
-                f.append(pos[i].split("/")[0].toInt()-1);
+                //face index
+                f.append(values[0].toInt()-1);
+                //vertex texture index
+                f.append(values[1].toInt()-1);
+                //we have a total of 6 componants per face
             }
         }
     }
-    QList<Vertex *> vertexs;
-    //generating vertexs
-    for(int i = 0; i < v.length(); i++)
-    {
-        vertexs.append(new Vertex(v[i],vt[i]));
-    }
-    return new Mesh(vertexs,f,tex);
+    return new Mesh(v,vt,f,tex);
 }

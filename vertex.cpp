@@ -18,38 +18,27 @@
 
 #include "vertex.h"
 
-Vertex::Vertex(double x, double y, double z, uint r, uint g, uint b, uint a, double u, double v)
+Vertex::Vertex(double x, double y, double z)
 {
     Vertex::location = new Vec3(x,y,z);
-    Vertex::color    = new Color(r,g,b,a);
+    Vertex::texCoord = new Vec3(0,0,0);
+}
+
+Vertex::Vertex(double x, double y, double z, double u, double v)
+{
+    Vertex::location = new Vec3(x,y,z);
     Vertex::texCoord = new Vec3(u,v,0);
 }
 
 Vertex::Vertex(Vec3 *location)
 {
     Vertex::location = location;
-    Vertex::color = new Color(255,255,255,255);
-    Vertex::texCoord = new Vec3(0,0,0);
-}
-
-Vertex::Vertex(Vec3 *location, Color *color)
-{
-    Vertex::location = location;
-    Vertex::color = color;
     Vertex::texCoord = new Vec3(0,0,0);
 }
 
 Vertex::Vertex(Vec3 *location, Vec3 *texCoord)
 {
     Vertex::location = location;
-    Vertex::color = new Color(0,0,0);
-    Vertex::texCoord = texCoord;
-}
-
-Vertex::Vertex(Vec3 *location, Color *color, Vec3 *texCoord)
-{
-    Vertex::location = location;
-    Vertex::color = color;
     Vertex::texCoord = texCoord;
 }
 
@@ -82,5 +71,5 @@ double Vertex::getV()
 
 Vertex *Vertex::copy()
 {
-    return new Vertex(Vertex::location->copy(),Vertex::color->copy(),Vertex::texCoord->copy());
+    return new Vertex(Vertex::location->copy(),Vertex::texCoord->copy());
 }

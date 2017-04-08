@@ -50,17 +50,12 @@ int main()
         return 1;
 
     double size = .5;
-    //test vertex
-    Vertex v0(0,size,0,  255,0,0,0,  .5,0);
-    Vertex v1(-size,-size,0, 0,255,0,0,  0,1);
-    Vertex v2(size,-size,0,  0,0,255,0,  1,1);
 
     //test texture
-    Texture tex(resourcesFolder+"/suzanne.bmp",display.buffer);
-
+    Texture tex(resourcesFolder+"/pistol.bmp",display.buffer);
 
     //test mesh
-    Mesh *m = Mesh::importMesh(resourcesFolder+"/suzanne.obj",&tex);
+    Mesh *m = Mesh::importMesh(resourcesFolder+"/pistol.obj",&tex);
     m->scale(1.5,1.5,1.5,m->getCenter());
 
 

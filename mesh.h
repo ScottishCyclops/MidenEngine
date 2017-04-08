@@ -27,14 +27,24 @@
 #include "vertex.h"
 #include "texture.h"
 
+//TODO: simplify the vertex thing
+/*
+struct Vertex
+{
+    Vec3 *location;
+    Vec3 *
+};
+*/
+
 class Mesh
 {
 public:
     Texture *tex;
-    QList<Vertex *>v;
-    QList<int>t;
-    Mesh(QList<Vertex *> v, QList<int> t);
-    Mesh(QList<Vertex *> v, QList<int> t, Texture *tex);
+    QList<Vec3 *>v;
+    QList<Vec3 *>vt;
+    QList<int>f;
+    Mesh(QList<Vec3 *> v, QList<int> f);
+    Mesh(QList<Vec3 *> v, QList<Vec3 *>vt, QList<int> f, Texture *tex);
 
     //transformation
     void translate(double x, double y, double z);
