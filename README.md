@@ -10,10 +10,10 @@ I went pretty far, but decided to start over in C++ for obvious performance gain
 ## Features
 - Double buffering
 - Triangle rasterization
-- Texture mapping (still work in progress)
+- Texture mapping
+- backface culling
 
 ## Goals
-- fix texture mapping
 - do calculations on GPU
 - create a little 3D game with the engine (maybe)
 
