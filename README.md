@@ -12,6 +12,10 @@ I went pretty far, but decided to start over in C++ for obvious performance gain
 - Triangle rasterization
 - Texture mapping
 - backface culling
+- .obj mesh import
+- .bmp texture import
+
+Note : obj import requiers certain options, it is not designed to handle any obj exported file
 
 ## Goals
 - do calculations on GPU
