@@ -18,17 +18,19 @@
 
 #include "mesh.h"
 
-Mesh::Mesh(QList<Vec3*> v, QList<int> f)
+Mesh::Mesh(QList<Vec3*> v, QList<Vec3 *> vn, QList<int> f)
 {
     Mesh::v = v;
+    Mesh::vn = vn;
     Mesh::f = f;
     Mesh::tex = NULL;
 }
 
-Mesh::Mesh(QList<Vec3*> v, QList<Vec3 *> vt, QList<int> f, Texture *tex)
+Mesh::Mesh(QList<Vec3*> v, QList<Vec3 *> vt, QList<Vec3 *> vn, QList<int> f, Texture *tex)
 {
     Mesh::v = v;
     Mesh::vt = vt;
+    Mesh::vn = vn;
     Mesh::f = f;
     Mesh::tex = tex;
 }
@@ -93,6 +95,8 @@ Mesh *Mesh::importMesh(string objPath, Texture *tex)
     QList<Vec3 *>v;
     //vertex texture coord
     QList<Vec3 *>vt;
+    //vertex normal
+    QList<Vec3 *>vn;
     //faces
     QList<int> f;
 
@@ -113,6 +117,12 @@ Mesh *Mesh::importMesh(string objPath, Texture *tex)
             QStringList pos = qline.split(" ");
             vt.append(new Vec3(pos[1].toDouble(),pos[2].toDouble(),0));
         }
+        //we found a normal
+        else if(qline.startsWith("vn "))
+        {
+            QStringList pos = qline.split(" ");
+            vn.append(new Vec3(pos[1].toDouble(),pos[2].toDouble(),pos[3].toDouble()));
+        }
         //we found a face
         else if(qline.startsWith("f "))
         {
@@ -126,9 +136,12 @@ Mesh *Mesh::importMesh(string objPath, Texture *tex)
                 f.append(values[0].toInt()-1);
                 //vertex texture index
                 f.append(values[1].toInt()-1);
-                //we have a total of 6 componants per face
+                //vertex normal
+                f.append(values[2].toInt()-1);
             }
+            //we have a total of 3+3+3 componants per face
+            //it looks like this : v, vt, vn, v, vt, vn, v, vt, vn
         }
     }
-    return new Mesh(v,vt,f,tex);
+    return new Mesh(v,vt,vn,f,tex);
 }

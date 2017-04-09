@@ -97,8 +97,9 @@ double getBilinearFilteredPixelColor(Texture tex, double u, double v) {
 
 Uint32 *Texture::getPixelAt(Vec3 *coord)
 {
+    //texture origin is at the bottom left
     double u = coord->x * (Texture::width-1);
-    double v = coord->y * (Texture::height-1);
+    double v = (coord->y *-1 +1) * (Texture::height-1);
     /*
     int x = (int)u;
     int y = (int)v;

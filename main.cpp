@@ -49,14 +49,14 @@ int main()
     if(!display.isOpen)
         return 1;
 
-    double size = .5;
+    double size = 1.5;
 
     //test texture
     Texture tex(resourcesFolder+"/pistol.bmp",display.buffer);
 
     //test mesh
     Mesh *m = Mesh::importMesh(resourcesFolder+"/pistol.obj",&tex);
-    m->scale(1.5,1.5,1.5,m->getCenter());
+    m->scale(size,size,size,m->getCenter());
 
 
     Game game = {&display, 0, true, 1000};
@@ -89,9 +89,9 @@ int main()
                 case SDLK_LEFT:  m->translate(-factor,0,0); break;
                 case SDLK_RIGHT: m->translate(factor,0,0);  break;
                 case SDLK_w:     m->translate(0,0,factor); break;
-                case SDLK_a:     m->rotateY(rotFac,m->getCenter());        break;
+                case SDLK_a:     m->rotateY(-rotFac,m->getCenter());        break;
                 case SDLK_s:     m->translate(0,0,-factor);  break;
-                case SDLK_d:     m->rotateY(-rotFac,m->getCenter());       break;
+                case SDLK_d:     m->rotateY(rotFac,m->getCenter());       break;
 
                 case SDLK_ESCAPE: game.running = false; break;
                 case SDLK_TAB: index == 0 ? index = 1 : index  = 0; break;
@@ -107,7 +107,7 @@ int main()
         //Rendering
         render.clearTarget();
 
-        //m->rotateY(.5,m->getCenter());
+        m->rotateY(.5,m->getCenter());
 
 
         render.drawMesh(m);
@@ -125,7 +125,7 @@ int main()
         }
 
         //framerate cap
-        //SDL_Delay(second/game.fpsCap);
+        SDL_Delay(second/game.fpsCap);
     }
 
 

@@ -249,6 +249,20 @@ void Renderer::fillEdges(Edge *longEdge, Edge *shortEdge, Texture *tex)
 
 void Renderer::drawTriangle(Vertex *vert1, Vertex *vert2, Vertex *vert3, Texture *tex)
 {
+
+    //calculating normal
+    //normalize (cross (B - A) (C - A))
+    Vec3 n = Vec3::normalize(Vec3::cross(Vec3::subVectors(*vert2->location,*vert1->location),Vec3::subVectors(*vert3->location,*vert1->location)));
+    /*
+    std::cout << "DEBUG : tris\n";
+    std::cout << Vec3(0,0,1).toString() << "\n";
+    std::cout << n.toString() << "\n";
+    std::cout << Vec3::dot(Vec3(0,0,1),n) << "\n";
+    */
+    //backface culling
+    if(Vec3::dot(Vec3(0,0,1),n) >= 0)
+        return;
+
     //if any point is too close, we don't render the triangle to avoid errors
     if(vert1->getZ()+Renderer::m_tanHalfFov <= 0 || vert2->getZ()+Renderer::m_tanHalfFov <= 0 || vert3->getZ()+Renderer::m_tanHalfFov <= 0)
         return;
@@ -292,11 +306,13 @@ void Renderer::drawTriangle(Vertex *vert1, Vertex *vert2, Vertex *vert3, Texture
 
 void Renderer::drawMesh(Mesh *m)
 {
-    for(int i = 0; i < m->f.length(); i+=vertPerTri+coordPerTri)
+    for(int i = 0; i < m->f.length(); i+=vertPerTri+coordPerTri+normalPerTri)
     {
         Renderer::drawTriangle( new Vertex(m->v[m->f[i  ]],m->vt[m->f[i+1]]),
-                                new Vertex(m->v[m->f[i+2]],m->vt[m->f[i+3]]),
-                                new Vertex(m->v[m->f[i+4]],m->vt[m->f[i+5]]),m->tex);
+                new Vertex(m->v[m->f[i+3]],m->vt[m->f[i+4]]),
+                new Vertex(m->v[m->f[i+6]],m->vt[m->f[i+7]]),
+                //m->vn[m->f[i+8]],
+                m->tex);
     }
 }
 

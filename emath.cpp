@@ -47,7 +47,7 @@ double EMath::lerp(double a, double b, double mix)
 
 double EMath::normalize(double value, double zero, double one)
 {
-    return EMath::map(value,zero,one,0,1);
+    return ((value-zero)/one);
 }
 
 double EMath::map(double value, double min, double max, double newMin, double newMax)

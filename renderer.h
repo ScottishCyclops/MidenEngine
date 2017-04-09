@@ -21,6 +21,7 @@
 
 #define vertPerTri 3
 #define coordPerTri 3
+#define normalPerTri 3
 
 #include "includes.h"
 

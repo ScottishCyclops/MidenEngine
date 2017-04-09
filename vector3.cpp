@@ -169,7 +169,7 @@ Vec3 Vec3::divScalar(Vec3 v, double s)
 
 double Vec3::dot(Vec3 v0, Vec3 v1)
 {
-    return v0.x*v1.x+v0.y*v1.y+v0.z*v1.z;
+    return v0.x*v1.x + v0.y*v1.y + v0.z*v1.z;
 }
 
 Vec3 Vec3::cross(Vec3 v0, Vec3 v1)
@@ -205,7 +205,7 @@ Vec3 *Vec3::toScreenSpace(Vec3 *v, double width)
     //not width and height
     //return new Vec3(EMath::map(v->x,0,1,0,width),EMath::map(v->y,0,1,width,0));
     double widthOverTwo = width/2;
-    return new Vec3(v->x*widthOverTwo+widthOverTwo,v->y*(-widthOverTwo)+widthOverTwo);
+    return new Vec3(v->x*(-widthOverTwo)+widthOverTwo,v->y*(-widthOverTwo)+widthOverTwo);
 }
 
 Vec3 Vec3::ceilVector(Vec3 v)

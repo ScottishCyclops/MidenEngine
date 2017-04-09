@@ -42,9 +42,10 @@ public:
     Texture *tex;
     QList<Vec3 *>v;
     QList<Vec3 *>vt;
+    QList<Vec3 *>vn;
     QList<int>f;
-    Mesh(QList<Vec3 *> v, QList<int> f);
-    Mesh(QList<Vec3 *> v, QList<Vec3 *>vt, QList<int> f, Texture *tex);
+    Mesh(QList<Vec3 *> v, QList<Vec3 *>vn, QList<int> f);
+    Mesh(QList<Vec3 *> v, QList<Vec3 *>vt, QList<Vec3 *>vn, QList<int> f, Texture *tex);
 
     //transformation
     void translate(double x, double y, double z);
