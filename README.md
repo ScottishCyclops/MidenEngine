@@ -1,3 +1,10 @@
+Old version of my work in progress engine.
+
+I keep it for reference, might disapear soon.
+
+Original README :
+
+
 # Miden Engine
 3D Software renderer built on top of SDL2 from scratch in C++.
 
